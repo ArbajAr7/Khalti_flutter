@@ -1,0 +1,93 @@
+import 'package:flutter/material.dart';
+import 'package:khalti_flutter/khalti_flutter.dart';
+
+class KhaltiPaymentPage extends StatefulWidget {
+  const KhaltiPaymentPage({Key? key}) : super(key: key);
+
+  @override
+  State<KhaltiPaymentPage> createState() => _KhaltiPaymentPageState();
+}
+
+class _KhaltiPaymentPageState extends State<KhaltiPaymentPage> {
+  TextEditingController amountController = TextEditingController();
+
+  getAmt() {
+    return int.parse(amountController.text) * 100;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return  Scaffold(
+      appBar: AppBar(
+        title: const Text('Khalti payment integration'),
+      ),
+      body: Container(
+        padding: const EdgeInsets.all(15),
+        child: ListView(
+          children: [
+            const SizedBox(height: 15),
+            TextField(
+              controller: amountController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: "Enter amount to pay",
+                enabledBorder:OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black),
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.green),
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                ),
+              ),
+            ),
+            const SizedBox( height: 8,),
+            MaterialButton(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: const BorderSide(color: Colors.black),
+              ),
+              height: 50,
+              color: const Color(0xFF56328c),
+              child: const Text(
+                'Pay With Khalti',
+                style: TextStyle(color: Colors.white, fontSize: 22),
+              ),
+              onPressed: (){
+                KhaltiScope.of(context).pay(
+                  config: PaymentConfig(
+                    amount: getAmt(),
+                    productName: 'Fab Yatra', productIdentity: 'dell-sssssg5-g5510-2021',
+                  ),
+                  preferences: [
+                    PaymentPreference.khalti,
+                    PaymentPreference.eBanking,
+                    PaymentPreference.mobileBanking,
+                  ],
+                  onSuccess: (su) {
+                    const successsnackBar =SnackBar(
+                      content: Text('Payment Successful'),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(successsnackBar);
+                  },
+                  onFailure: (fa) {
+                    const failedsnackBar =SnackBar(
+                      content: Text('Payment Failed'),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(failedsnackBar);
+                  },
+                  onCancel: () {
+                    const cancelsnackBar =SnackBar(
+                      content: Text('Payment Cancelled'),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(cancelsnackBar);
+                  },
+                );
+              },),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
